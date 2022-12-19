@@ -1,6 +1,8 @@
 // элементы в DOM можно получить при помощи функции querySelector
 const fruitsList = document.querySelector('.fruits__list'); // список карточек
 const shuffleButton = document.querySelector('.shuffle__btn'); // кнопка перемешивания
+const minWeightInput = document.querySelector('.min__weight__input'); // кнопка перемешивания
+const maxWeightInput = document.querySelector('.max__weight__input'); // кнопка перемешивания
 const filterButton = document.querySelector('.filter__btn'); // кнопка фильтрации
 const sortKindLabel = document.querySelector('.sort__kind'); // поле с названием сортировки
 const sortTimeLabel = document.querySelector('.sort__time'); // поле с временем сортировки
@@ -20,66 +22,105 @@ let fruitsJSON = `[
   {"kind": "Тамаринд", "color": "светло-коричневый", "weight": 22}
 ]`;
 
+// список цветов
+const fruitsColorMap = new Map([
+  ['фиолетовый', '#8b00ff'],
+  ['зеленый', '#84cd1b'],
+  ['розово-красный', '#dc143c'],
+  ['желтый', '#ffd800'],
+  ['светло-коричневый', '#cd853f']
+]);
+
+const fruitsColorArray = {
+  "фиолетовый": "#8b00ff",
+  "зеленый": "#84cd1b",
+  "розово-красный": "#dc143c",
+  "желтый": "#ffd800",
+  "светло-коричневый": "#cd853f",
+};
+
 // преобразование JSON в объект JavaScript
 let fruits = JSON.parse(fruitsJSON);
 
 /*** ОТОБРАЖЕНИЕ ***/
+function createFruitCard(kind, color, weight) {
+  const fruit = document.createElement('li');
+  const fruitInfo = document.createElement('div');
+  const fruitKind = document.createElement('div')
+  const fruitColor = document.createElement('div')
+  const fruitWeight = document.createElement('div')
 
+  fruitInfo.append(fruitKind);
+  fruitInfo.append(fruitColor);
+  fruitInfo.append(fruitWeight);
+  fruit.append(fruitInfo);
+  fruitsList.append(fruit);
+  
+  fruitKind.innerHTML = kind;
+  fruitColor.innerHTML = color;
+  fruitWeight.innerHTML = weight;
+
+  fruit.classList.add('fruit__item');
+  fruit.style.background = fruitsColorMap.get(color);
+  fruitInfo.classList.add('fruit__info');
+}
 // отрисовка карточек
-const display = () => {
-  // TODO: очищаем fruitsList от вложенных элементов,
-  // чтобы заполнить актуальными данными из fruits
-
-  for (let i = 0; i < fruits.length; i++) {
-    // TODO: формируем новый элемент <li> при помощи document.createElement,
-    // и добавляем в конец списка fruitsList при помощи document.appendChild
+const display = (arr) => {
+  while (document.querySelector('.fruit__item') !== null) { 
+    fruitsList.removeChild(document.querySelector('.fruit__item'));
   }
+
+  for (let i = 0; i < arr.length; i++) {
+    // TODO: формируем новый элемент <li>
+    createFruitCard(arr[i].kind, arr[i].color, arr[i].weight);
+  }
+
 };
 
 // первая отрисовка карточек
-display();
+display(fruits);
 
 /*** ПЕРЕМЕШИВАНИЕ ***/
 
 // генерация случайного числа в заданном диапазоне
-const getRandomInt = (min, max) => {
+function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 // перемешивание массива
-const shuffleFruits = () => {
+function shuffleFruits() {
   let result = [];
 
   // ATTENTION: сейчас при клике вы запустите бесконечный цикл и браузер зависнет
   while (fruits.length > 0) {
     // TODO: допишите функцию перемешивания массива
-    //
-    // Подсказка: находим случайный элемент из fruits, используя getRandomInt
-    // вырезаем его из fruits и вставляем в result.
-    // ex.: [1, 2, 3], [] => [1, 3], [2] => [3], [2, 1] => [], [2, 1, 3]
-    // (массив fruits будет уменьшатся, а result заполняться)
+    randInt = getRandomInt(0, fruits.length - 1);
+    result.push(fruits[randInt]);
+    fruits.splice(randInt, 1);
   }
 
   fruits = result;
 };
 
 shuffleButton.addEventListener('click', () => {
-  shuffleFruits();
-  display();
+  shuffleFruits()
+  display(fruits);
 });
 
 /*** ФИЛЬТРАЦИЯ ***/
 
 // фильтрация массива
 const filterFruits = () => {
-  fruits.filter((item) => {
+  let filteredFruits = fruits.filter((item) => {
     // TODO: допишите функцию
+    return item.weight > minWeightInput.value && item.weight < maxWeightInput.value
   });
+  
+  return filteredFruits
 };
 
 filterButton.addEventListener('click', () => {
-  filterFruits();
-  display();
+  display(filterFruits());
 });
 
 /*** СОРТИРОВКА ***/
