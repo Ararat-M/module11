@@ -246,7 +246,6 @@ addActionButton.addEventListener('click', () => {
   } 
   else{
     fruits.push({kind: kindInput.value, color: colorSelector.value, weight: weightInput.value});
+    display();
   }
-
-  display();
 });
